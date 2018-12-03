@@ -1,6 +1,7 @@
-<? header("Content-Type: text/html; charset=UTF-8");?>
 <?php
 require_once 'db_init.php';
+
+/* SQL injection prevention */
 function protect_string($str){
     $db = get_db();
     $str = stripslashes($str);

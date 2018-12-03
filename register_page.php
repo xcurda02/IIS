@@ -6,6 +6,9 @@ if (isset($_SESSION['login']))
     $user_in_session = $_SESSION['login'];
 else
     $user_in_session = NULL;
+/*
+ * Stránka registrace
+ * */
 ?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -14,9 +17,13 @@ else
 <head>
     <title> Multikina </title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2">
-    <link rel="stylesheet" href="styles/style.css" type="text/css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    <script type="application/javascript" src="js/jquery-3.3.1.min.js"></script>
     <script type="application/javascript" src="js/valid_input.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
 
 </head>
@@ -25,58 +32,75 @@ else
 <?php
 include 'menu.php';
 ?>
+<div id="wrapper">
+    <div id="center-box">
+        <form id="reg_form">
+
+            <div class="form-group required">
+                <label class="control-label" for="login">Uživatelské jméno</label>
+                <input id="login" class="form-control" name="login" type="text" placeholder="Uživatelské jméno">
+
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="name">Jméno</label>
+                <input id="name" class="form-control" name="name" type="text" placeholder="Jméno">
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="surname">Příjmení</label>
+                <input id="surname" class="form-control" name="surname" type="text" placeholder="Příjmení">
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="email">Emailová adresa</label>
+                <input id="email" class="form-control" name="email" type="text" placeholder="Emailová adresa">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label" for="phone">Telefon</label>
+                <input id="phone" class="form-control" name="phone" type="text" placeholder="Telefon">
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="password">Heslo</label>
+                <input id="password" class="form-control" name="password" type="password" placeholder="Heslo">
+            </div>
+
+            <div class="form-group required">
+                <label class="control-label" for="password_again">Potvrdit heslo</label>
+                <input id="password_again" class="form-control" name="password_again" type="password" placeholder="Heslo (znovu)">
+            </div>
+            <div class="row">
+            <?php
+            require_once 'users.php';
+                if (check_usergroup($user_in_session,'admin')) {
+                    echo "<div class=\"col-md-2\">";
+                    echo "<label class=\"control-label\"> Typ účtu: </label></div><div class='col-md-6'>";
+                    echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='admin'>Administrátor</label></div>";
+                    echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='seller'>Prodavač</label></div>";
+                    echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='customer' checked>Zákazník</label></div>";
+                    echo "</div>";
+                }else{
+                    echo "<div class='col-md-6'></div>";
+                }
+            ?>
+                <div class="col-md-4">
+                    <input id="submit" class='btn btn-primary' name="submit" type="button" value="Registrovat" style="float: right">
+                </div>
+            </div>
 
 
-<h2>Registration Form</h2>
-<form id="reg_form">
 
-    <label>Uživatelské jméno:</label>
-    <input id="login" name="login" type="text">*
-    <br>
 
-    <label>Jméno:</label>
-    <input id="name" name="name" type="text">*
-    <br>
-
-    <label>Příjmení:</label>
-    <input id="surname" name="surname" type="text">*
-    <br>
-
-    <label>Emailová adresa:</label>
-    <input id="email" name="email" type="text">*
-    <br>
-
-    <label>Telefon:</label>
-    <input id="phone" name="phone" type="text">
-    <br>
-
-    <label>Heslo:</label>
-    <input id="password" name="password" type="password">*
-    <br>
-
-    <label>Potvrdit heslo:</label>
-    <input id="password_again" name="password_again" type="password">*
-    <br>
-    <?php
-    require_once 'users.php';
-        if (check_usergroup($user_in_session,'admin')) {
-            echo "<label> Typ účtu: </label>";
-            echo "<input type='radio' name='usergroup' value='admin'>Administrátor<br>";
-            echo "<input type='radio' name='usergroup' value='seller'>Obchodník<br>";
-            echo "<input type='radio' name='usergroup' value='customer' checked>Zákazník<br>";
-        }
-    ?>
-    *Povinné <input id="submit" name="submit" type="button" value="Registrovat">
+        </form>
+        <span id="error_message"></span>
+    </div>
 
 
 
-    <span id="error_message"></span>
-    <span id="succ_message"></span>
 
-</form>
-
-
-
+</div>
 </body>
 
 </html>
@@ -126,7 +150,7 @@ include 'menu.php';
             // Maximum input characters check (30)
             if (all_ok) {
                 var _30_chars = ['login', 'name', 'surname', 'password'];
-                if (!check_for_max_30_chars(_30_chars)){
+                if (!max_char_check(30,_30_chars)){
                     all_ok = false;
                     $('#error_message').html("Překročen znakový limit (30)");
                 }
@@ -159,17 +183,23 @@ include 'menu.php';
 
 
             if (all_ok) {
-                // Debug
-                var form_data = $('#reg_form').serialize()+'&type=register';
-                for (var key in form_data){
-                    console.log(key+':'+form_data[key]);
-                }
+                var form_data = $('#reg_form').serialize();
                 $.ajax({
-                    url: "edit_user.php",
+                    url: "register_script.php",
                     method: "POST",
-                    data: $('#reg_form').serialize()+'&type=register',
+                    data: form_data,
                     success: function (data) {
-                        $('#succ_message').html(data);
+                        if(data === "EOK") {
+                            $("#reg_form").trigger('reset');
+                            if (document.getElementsByName("usergroup").length === 0){
+                                $('#error_message').html("Účet vytvořen, <a href=\"index.php\">přejít k přihlášení</a>");
+                            } else {
+                                $('#error_message').html("Účet vytvořen");
+                            }
+                        }else {
+                            $('#error_message').html(data);
+                        }
+
                     },
                     error: function (data) {
                         $('#error_message').html(data);

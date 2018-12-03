@@ -1,16 +1,23 @@
 <? header("Content-Type: text/html; charset=UTF-8");?>
 <?php
-    require_once 'db_init.php';
-    include 'admin_session.php';
-    ?>
+require_once 'db_init.php';
+include 'admin_session.php';
+/*
+ * Stránka umožňující administrátorovi smazat účet
+ */
+?>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 
 <head>
     <title> Multikina </title>
-    <link rel="stylesheet" href="styles/style.css" type="text/css">
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    <script type="application/javascript" src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
 </head>
 
@@ -19,18 +26,32 @@
   <?php
     include 'menu.php';
   ?>
+  <div id="wrapper">
+      <div id="center-box">
 
-  <h2>Zrušení účtu</h2>
+            <h2>Zrušení účtu</h2>
+            <form id="delete_user_form" onkeypress="return event.keyCode !== 13;">
+                <div class="form-group required">
 
-    <form id="delete_user_form">
-          <label>Uživatelské jméno:</label>
-          <input id="login" name="login" type="text">
+                    <label class="control-label" for="login">Uživatelské jméno:</label>
+                    <input class="form-control" id="login" name="login" type="text">
+                </div>
 
-          <input id="submit" name="submit" type="button" value="Zrušit účet">
-          <span id="ErrorMessage"></span>
-    </form>
+                <div class="row">
+
+                    <div class="col-md-6">
+                        <input  class='btn btn-primary' type="button" name="submit" id="submit" value="Zrušit účet">
+                    </div>
+                    <div class="col-md-6">
+                        <span id="error_message"></span>
+                    </div>
+
+                </div>
 
 
+            </form>
+      </div>
+  </div>
 </body>
 
 </html>
@@ -40,26 +61,24 @@
     $(document).ready(function() {
         $('#submit').click(function () {
             $('#login').css('background-color', '#ffffff');
-            $('#ErrorMessage').html("");
+            $('#error_message').html("");
             var form_data = $('#delete_user_form').serialize();
-            for (var key in form_data) {
-                console.log(key + ':' + form_data[key]);
-            }
             $.ajax({
                 url: "delete_user_script.php",
                 method: "POST",
                 data: form_data,
                 success: function (data) {
                     if (data === "OK") {
-                        $('#ErrorMessage').html("Uživatel odstraněn");
+                        $('#error_message').html("Uživatel odstraněn");
+                        $('#delete_user_form').trigger("reset");
                     }
                     else {
                         $('#login').css('background-color', '#f47070');
-                        $('#ErrorMessage').html("Uživatel neexistuje");
+                        $('#error_message').html(data);
                     }
                 },
                 error: function (data) {
-                    $('#ErrorMessage').html(data);
+                    $('#error_message').html(data);
                 }
             });
         });

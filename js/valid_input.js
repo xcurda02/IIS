@@ -37,10 +37,10 @@ function set_white(fields) {
     }
 }
 
-function check_for_max_30_chars(fields) {
+function max_char_check(chars,fields) {
     var status = true;
     for (var i = 0; i < fields.length; i++) {
-        if ($('#' + fields[i]).val().length > 30) {
+        if ($('#' + fields[i]).val().length > chars) {
             status = false;
             $('#' + fields[i]).css('background-color', '#f47070');
         }

@@ -1,70 +1,107 @@
-<? header("Content-Type: text/html; charset=UTF-8");?>
 <?php
 function generate_admin_edit_form(){
-    echo "<label>Uživatelské jméno:</label>";
-    echo "<input id=\"login\" name=\"login\" type=\"text\" >*";
-    echo "<input id=\"set_username\" name=\"set_username\" type=\"button\" value=\"Set\">";
+    echo "
+            <div class=\"form-group required\" style='margin-bottom: 0'>
+                <label class=\"control-label\" for=\"login\">Uživatelské jméno</label>
+            </div>
+            <div class=\"input-group mb-3\">
+                <input id='login' name='login' type=\"text\" class=\"form-control\" placeholder=\"Uživatelské jméno\" aria-label=\"Uživatelské jméno\" aria-describedby=\"basic-addon2\">
+                <div class=\"input-group-append\">
+                    <button id='set_username' name='set_username' class=\"btn btn-outline-secondary\" type=\"button\">Vyplnit</input>
 
-    echo "<br>";
+                </div>
+            </div>
 
-    echo "<label>Jméno:</label>";
-    echo "<input id=\"name\" name=\"name\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"name\">Jméno</label>
+                <input id=\"name\" class=\"form-control\" name=\"name\" type=\"text\" placeholder=\"Jméno\">
+            </div>
 
-    echo "<label>Příjmení:</label>";
-    echo "<input id=\"surname\" name=\"surname\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"surname\">Příjmení</label>
+                <input id=\"surname\" class=\"form-control\" name=\"surname\" type=\"text\" placeholder=\"Příjmení\">
+            </div>
 
-    echo "<label>Emailová adresa:</label>";
-    echo "<input id=\"email\" name=\"email\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"email\">Emailová adresa</label>
+                <input id=\"email\" class=\"form-control\" name=\"email\" type=\"text\" placeholder=\"Emailová adresa\">
+            </div>
 
-    echo "<label>Telefon:</label>";
-    echo "<input id=\"phone\" name=\"phone\" type=\"text\"><br>";
+            <div class=\"form-group\">
+                <label class=\"control-label\" for=\"phone\">Telefon</label>
+                <input id=\"phone\" class=\"form-control\" name=\"phone\" type=\"text\" placeholder=\"Telefon\">
+            </div>
 
-    echo "<label>Heslo:</label>";
-    echo "<input id=\"password\" name=\"password\" type=\"password\"><br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"password\">Heslo</label>
+                <input id=\"password\" class=\"form-control\" name=\"password\" type=\"password\" placeholder=\"Heslo\">
+            </div>
 
-    echo "<label>Potvrdit heslo:</label>";
-    echo "<input id=\"password_again\" name=\"password_again\" type=\"password\"><br>";
-
-
-    echo "<label> Typ účtu: </label><br>";
-    echo "<input id='user_admin' type='radio' name='usergroup' value='admin'>Administrátor<br>";
-    echo "<input id='user_seller' type='radio' name='usergroup' value='seller'>Obchodník<br>";
-    echo "<input id='user_customer' type='radio' name='usergroup' value='customer' checked>Zákazník<br>";
-
-
-    echo "*Povinné <input id=\"submit_all\" name=\"submit_all\" type=\"button\" value=\"Editovat\">";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"password_again\">Potvrdit heslo</label>
+                <input id=\"password_again\" class=\"form-control\" name=\"password_again\" type=\"password\" placeholder=\"Heslo (znovu)\">
+            </div>
+            <div class=\"row\">";
+        echo "<div class=\"col-md-2\">";
+        echo "<label class=\"control-label\"> Typ účtu: </label></div><div class='col-md-6'>";
+        echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='admin'>Administrátor</label></div>";
+        echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='seller'>Prodavač</label></div>";
+        echo "<div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input' name='usergroup' value='customer' checked>Zákazník</label></div>";
+        echo "</div>";
+        echo "<div class=\"col-md-4\">
+                    <input id=\"submit_all\" class='btn btn-primary' name=\"submit_all\" type=\"button\" value=\"Změnit údaje\" style=\"float: right\">
+                </div></div>";
 }
 
 function generate_non_admin_edit_form($user){
-    echo "<label>Uživatelské jméno:</label>";
-    echo "<input id=\"login\" name=\"login\" type=\"text\" value=\"$user\" disabled>*";
+    echo"<div class=\"form-group required\">
+                <label class=\"control-label\" for=\"login\">Uživatelské jméno</label>
+                <input id=\"login\" class=\"form-control\" name=\"login\" type=\"text\" value='{$_SESSION['login']}' disabled>
 
-    echo "<br>";
+            </div>
 
-    echo "<label>Jméno:</label>";
-    echo "<input id=\"name\" name=\"name\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"name\">Jméno</label>
+                <input id=\"name\" class=\"form-control\" name=\"name\" type=\"text\" placeholder=\"Jméno\">
+            </div>
 
-    echo "<label>Příjmení:</label>";
-    echo "<input id=\"surname\" name=\"surname\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"surname\">Příjmení</label>
+                <input id=\"surname\" class=\"form-control\" name=\"surname\" type=\"text\" placeholder=\"Příjmení\">
+            </div>
 
-    echo "<label>Emailová adresa:</label>";
-    echo "<input id=\"email\" name=\"email\" type=\"text\">*<br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"email\">Emailová adresa</label>
+                <input id=\"email\" class=\"form-control\" name=\"email\" type=\"text\" placeholder=\"Emailová adresa\">
+            </div>
 
-    echo "<label>Telefon:</label>";
-    echo "<input id=\"phone\" name=\"phone\" type=\"text\"><br>";
+            <div class=\"form-group\">
+                <label class=\"control-label\" for=\"phone\">Telefon</label>
+                <input id=\"phone\" class=\"form-control\" name=\"phone\" type=\"text\" placeholder=\"Telefon\">
+            </div>";
+    echo "<div class='row'><div class='col-md-6'></div><div class=\"col-md-4\">
+                    <input id=\"submit_info\" class='btn btn-primary' name=\"submit_info\" type=\"button\" value=\"Změnit údaje\" style=\"float: right\">
+                </div></div>
+                <hr>";
 
-    echo "*Povinné <input id=\"submit_info\" name=\"submit_info\" type=\"button\" value=\"Editovat\">";
-    echo "<hr>";
 
-    echo "<label>Staré heslo:</label>";
-    echo "<input id=\"old_password\" name=\"old_password\" type=\"password\"><br>";
+    echo "<div class=\"form-group required\">
+                <label class=\"control-label\" for=\"old_password\">Staré heslo</label>
+                <input id=\"old_password\" class=\"form-control\" name=\"old_password\" type=\"password\" placeholder=\"Staré heslo\">
+            </div>";
 
-    echo "<label>Nové heslo:</label>";
-    echo "<input id=\"password\" name=\"password\" type=\"password\"><br>";
+    echo "<div class=\"form-group required\">
+                <label class=\"control-label\" for=\"password\">Nové heslo</label>
+                <input id=\"password\" class=\"form-control\" name=\"password\" type=\"password\" placeholder=\"Nové heslo\">
+            </div>
 
-    echo "<label>Potvrdit nové heslo:</label>";
-    echo "<input id=\"password_again\" name=\"password_again\" type=\"password\"><br>";
+            <div class=\"form-group required\">
+                <label class=\"control-label\" for=\"password_again\">Potvrdit heslo</label>
+                <input id=\"password_again\" class=\"form-control\" name=\"password_again\" type=\"password\" placeholder=\"Nové heslo (znovu)\">
+            </div>";
 
-    echo "*Povinné <input id=\"submit_pass\" name=\"submit_pass\" type=\"button\" value=\"Změnit heslo\">";
+    echo "<div class='row'><div class='col-md-6'></div><div class=\"col-md-4\">
+                    <input id=\"submit_pass\" class='btn btn-primary' name=\"submit_pass\" type=\"button\" value=\"Změnit heslo\" style=\"float: right\">
+                </div></div>";
 
 }

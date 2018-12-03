@@ -8,15 +8,22 @@ if (check_usergroup($user_in_session,'admin')){
 } else{
     $user_to_edit = $user_in_session;
 }
+/*
+ * Stránka umožňující editace účtu
+ */
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 
 <head>
     <title> Multikina </title>
-    <link rel="stylesheet" href="styles/style.css" type="text/css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" type="text/css">
+    <script type="application/javascript" src="js/jquery-3.3.1.min.js"></script>
     <script type="application/javascript" src="js/valid_input.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
 
 
 </head>
@@ -25,32 +32,24 @@ if (check_usergroup($user_in_session,'admin')){
 <?php
 include 'menu.php';
 ?>
+<div id="wrapper">
+    <div id="center-box">
+        <h2>Editace uživatelských údajů</h2>
+        <form id="edit_form">
 
+            <?php
+                require_once 'users.php';
+                require_once 'edit_forms.php';
+                if (check_usergroup($user_in_session,'admin'))
+                    generate_admin_edit_form();
+                else
+                    generate_non_admin_edit_form($user_in_session);
+            ?>
 
-<h2>Editace uživatelských údajů</h2>
-<form id="edit_form">
-
-    <?php
-        require_once 'users.php';
-        require_once 'edit_forms.php';
-        if (check_usergroup($user_in_session,'admin'))
-            generate_admin_edit_form();
-        else
-            generate_non_admin_edit_form($user_in_session);
-    ?>
-
-
-
-
-
-
-</form>
-
-<span id="error_message"></span>
-<span id="succ_message"></span>
-
-
-
+        </form>
+        <span id="error_message"></span>
+    </div>
+</div>
 </body>
 
 </html>
@@ -106,7 +105,6 @@ include 'menu.php';
             fill_inputs();
         }
 
-
         $('#set_username').click(function(){                  // Admin setting username => filling inputs with user data
             set_white(['login']);
             $('#error_message').html("");
@@ -137,7 +135,7 @@ include 'menu.php';
             // Maximum input characters check (30)
             if (all_ok) {
                 var _30_chars = ['login', 'name', 'surname'];
-                if (!check_for_max_30_chars(_30_chars)){
+                if (!max_char_check(30,_30_chars)){
                     all_ok = false;
                     $('#error_message').html("Překročen znakový limit (30)");
                 }
@@ -157,7 +155,7 @@ include 'menu.php';
                 }
             }
 
-            // phone validation
+            // Phone validation
             if (all_ok){
                 if ($('#phone').val() !== "") {
                     if (!is_valid_phone($('#phone').val())) {
@@ -170,23 +168,23 @@ include 'menu.php';
 
 
             if (all_ok) {
-                // Debug
-                var form_data = $('#edit_form').serialize()+'&type=edit';
                 $("#login").prop('disabled', false);
-                for (var key in form_data){
-                    console.log(key+':'+form_data[key]);
-                }
+                var form_data = $('#edit_form').serialize();
                 $.ajax({
                     url: "user_edit.php",
                     method: "POST",
-                    data: $('#edit_form').serialize()+'&type=edit',
+                    data: form_data,
                     success: function (data) {
-                        //$("form").trigger("reset");
-                        $('#succ_message').html(data);
+                        if(data !== "E_OK"){
+                            $('#error_message').html(data);
+                        } else {
+                            $('#error_message').html("Uživatelské údaje upraveny");
+                            $('#edit_form').trigger("reset");
+                        }
                         $("#login").prop('disabled', true);
                     },
                     error: function (data) {
-                        $('#error_message').html(data);
+                        $("#login").prop('disabled', true);
                     }
                 });
             }
@@ -225,17 +223,20 @@ include 'menu.php';
             }
 
             if (all_ok) {
-                // Debug
-                var form_data = 'login='+login+'&old_password='+old_password+'&password='+password+'&type=edit';
-                for (var key in form_data){
-                    console.log(key+':'+form_data[key]);
-                }
+
+                var form_data = 'login='+login+'&old_password='+old_password+'&password='+password;
                 $.ajax({
                     url: "user_edit.php",
                     method: "POST",
                     data: form_data,
                     success: function (data) {
-                        $('#succ_message').html(data);
+                        if (data === "E_OK"){
+                            $('#error_message').html("Heslo změněno");
+                            $('#edit_form').trigger("reset");
+                        } else {
+                            $('#error_message').html(data);
+                        }
+
                     },
                     error: function (data) {
                         $('#error_message').html(data);
@@ -244,6 +245,91 @@ include 'menu.php';
             }
         });
 
+
+        $('#submit_all').click(function () {                 // Admin submitting edited user account
+            $('#error_message').html("");
+            set_white(['password','password_again','login', 'name', 'surname', 'email']);
+
+            var login = $('#login').val();
+            var password = $('#password').val();
+            var password_again = $('#password_again').val();
+            var email = $('#email').val();
+            var phone = $('#phone').val();
+
+            var all_ok = true;
+
+            // Maximum input characters check (30)
+            if (all_ok) {
+                var _30_chars = ['login', 'name', 'surname'];
+                if (!max_char_check(30,_30_chars)){
+                    all_ok = false;
+                    $('#error_message').html("Překročen znakový limit (30)");
+                }
+            }
+
+            // Email validation
+            if (all_ok && email !== ""){
+
+                if (email.length > 50) {
+                    all_ok = false;
+                    $('#email').css('background-color', '#f47070');
+                    $('#error_message').html("Překročen znakový limit (50)");
+                }
+                if (!is_valid_email($('#email').val())) {
+                    all_ok = false;
+                    $('#email').css('background-color', '#f47070');
+                    $('#error_message').html("Neplatná emailová adresa");
+                }
+
+            }
+
+            // Phone validation
+            if (all_ok && phone !== ""){
+                if (!is_valid_phone(phone)) {
+                    all_ok = false;
+                    $('#phone').css('background-color', '#f47070');
+                    $('#error_message').html("Neplatné telefonní číslo");
+                }
+            }
+
+            // Password uniformity check
+            if (all_ok && password !== "") {
+                if (password !== password_again) {
+                    all_ok = false;
+                    $('#password').css('background-color', '#f47070');
+                    $('#password_again').css('background-color', '#f47070');
+                    $('#error_message').html("Zadaná hesla se neshodují");
+                }
+            }
+
+            // Password length check
+            if (all_ok && password !== ""){
+                if (!is_valid_password(password)){
+                    all_ok = false;
+                    $('#password').css('background-color', '#f47070');
+                    $('#password_again').css('background-color', '#f47070');
+                    $('#error_message').html("Heslo musí být dlouhé minimálně 6 a maximálně 30 znaků. Povolené znaky: a-z,A-Z,0-9,-,_ ");
+                }
+            }
+
+            if (all_ok) {
+                var form_data = $('#edit_form').serialize();
+                $.ajax({
+                    url: "user_edit.php",
+                    method: "POST",
+                    data: form_data,
+                    success: function (data) {
+                        $('#error_message').html(data);
+                        $('#edit_form').trigger("reset");
+                    },
+                    error: function (data) {
+                        $('#error_message').html(data);
+                    }
+                });
+            }
+
+
+        });
     })
         
 </script>

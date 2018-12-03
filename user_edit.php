@@ -1,11 +1,14 @@
-<? header("Content-Type: text/html; charset=UTF-8");?>
 <?php
 require_once 'db_protect.php';
+require_once 'users.php';
+include 'session.php';
 
-    $return ="";
+    if($user_in_session !== $_POST['login'] && !check_usergroup($user_in_session,'admin')){
+        header("location: no_access_page.php");
+    }
+
 
     // Protecting input strings
-    //$login = "'".protect_string($_POST['login'])."'";
     $login = "'".$_POST['login']."'";
 
     if(isset($_POST['name']) && !empty($_POST['name']))
@@ -23,20 +26,15 @@ require_once 'db_protect.php';
     else
         $email = null;
 
-    if (isset($_POST['password']) && !empty($_POST['password']))
-        $old_password = "'".protect_string($_POST['password'])."'";
+    if (isset($_POST['old_password']) && !empty($_POST['old_password']))
+        $old_password = "'".password_hash(protect_string($_POST['old_password']), PASSWORD_DEFAULT)."'";
     else
         $old_password = null;
 
     if (isset($_POST['password']) && !empty($_POST['password']))
-        $password = "'".protect_string($_POST['password'])."'";
+        $password = "'".password_hash(protect_string($_POST['password']),PASSWORD_DEFAULT)."'";
     else
         $password = null;
-
-    if (isset($_POST['password_again']) && !empty($_POST['password_again']))
-        $password_again = "'".protect_string($_POST['password_again'])."'";
-    else
-        $password_again = null;
 
 
     if (isset($_POST['phone']) && !empty($_POST['phone']))
@@ -46,31 +44,23 @@ require_once 'db_protect.php';
 
 
     if (isset($_POST['usergroup']))
-        $usergroup = "'".$_POST['usergroup']."'";
+
+        if (check_usergroup($user_in_session,'admin')){
+            $usergroup = "'".$_POST['usergroup']."'";
+        } else{
+            header("location: no_access_page.php");
+        }
+
     else
         $usergroup = '\'customer\'';
-
-
-    /*
-     * register == true => register mode
-     * register == false => editing mode
-     * */
-    $register = false;
-    if ($_POST['type'] === 'register')
-        $register = true;
-
 
 
     $db = get_db();
 
     // Login check
     $query = $db->query("select * from `user` where login = $login");
-    if ($query->num_rows == 1 && $register) {
-        echo "NON_UNIQUE_LOGIN";
-        exit(1);
-
-    } else if ($query->num_rows == 0 && !$register){
-        echo "NON_EXISTING_USER";
+    if ($query->num_rows == 0){
+        echo "Uživatel neexistuje";
         exit(1);
     }
 
@@ -81,51 +71,27 @@ require_once 'db_protect.php';
 
         if ($query->num_rows == 1) {
             $row = $query->fetch_assoc();
-            if ($register || (!$register && ($row['login'] != $_POST['login']))) {
-                echo "NON_UNIQUE_EMAIL";
+            if ($row['login'] != $_POST['login']) {
+                echo "Uživatel se stejným emailem již existuje";
                 exit(1);
             }
         }
     }
 
-    /* Adding new account into database */
-    if ($register) {
-        $query = $db->query("INSERT INTO `user` (login, `name`, surname, email, phone, password, usergroup) 
-                                VALUES ($login, $name, $surname, $email,$phone, $password, $usergroup)");
-        if ($query === TRUE) {
-            echo "EOK";
-            exit(0);
-        } else {
-            echo "DB Query Error: " . $db->error;
-            exit(1);
-        }
 
-    /* Editing existing account */
-    }else{
-        // associative array containing possible-to-edit values (name,surname,email,password,phone,usergroup)
-        $edit_arr = array('name' => $name, 'surname' => $surname, 'email' => $email,'password' => $password,'phone' => $phone,'usergroup' => $usergroup );
-        foreach($edit_arr as $key => $value) {
-            if ($value != null) {
-                $query = $db->query("UPDATE `user` 
-                                            SET $key = $value 
-                                            WHERE login = $login ");
+    // associative array containing possible-to-edit values (name,surname,email,password,phone,usergroup)
+    $edit_arr = array('name' => $name, 'surname' => $surname, 'email' => $email,'password' => $password,'phone' => $phone,'usergroup' => $usergroup );
+    foreach($edit_arr as $key => $value) {
+        if ($value != null) {
+            $query = $db->query("UPDATE `user` 
+                                        SET $key = $value 
+                                        WHERE login = $login ");
 
-                if ($query !== TRUE) {
-                    echo "DB Query Error: " . $db->error;
-                    exit(1);
-                }
+            if ($query !== TRUE) {
+                echo "DB Query Error: " . $db->error;
+                exit(1);
             }
         }
-        echo "Uživatel upraven";
     }
-
-
-
-
-
-
-
-
-
-
-
+    echo "E_OK";
+    exit(0);
